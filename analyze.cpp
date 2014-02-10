@@ -43,7 +43,7 @@ typedef struct {
 
 }
 
-#define AGENTS 8
+#define AGENTS 9
 #define Y2013 1356984000
 
 typedef struct cnt {
@@ -72,8 +72,14 @@ static inline void merge_cnt(cnt *dst,cnt *src) {
 
 static inline void print_stat(cnt *c) {
 	int i;
-	for (i=0; i < AGENTS; i++) {
+	for (i=0; i < 3; i++) {
 		printf("%zd\t",c->agent[i].size());
+	}
+	printf("%zd\t",c->agent[7].size());
+	for (i=3; i < AGENTS; i++) {
+		if (i != 7) {
+			printf("%zd\t",c->agent[i].size());
+		}
 	}
 	printf("%10d",c->hits);
 	printf("%10zd\t",c->users.size());
@@ -121,11 +127,17 @@ int main (int argc, char **argv) {
 			if (istty && ++count % 5000 == 0) {
 				fprintf(stdout,"\r%6.2f%%",100.0 * ( (char *)r - (char*)addr) / sb.st_size);
 				fflush(stdout);
+				//break;
 			}
 			time = r->ts - Y2013;
 			if (unlikely (r->ua == 0xffffffff)) {
 				ua = AGENTS-1;
-			} else {
+			}
+			else if (unlikely( r->ua > AGENTS-2 )) {
+				printf("Bad agent: %d\n",r->ua);
+				ua = AGENTS-1;
+			}
+			else {
 				ua = r->ua;
 			}
 			uid = r->uid;
@@ -163,7 +175,7 @@ int main (int argc, char **argv) {
 	if (!dc->merged)
 		merge_cnt(ac,dc);
 	
-	printf("day/hour\t\tnon\tios\tand\twin\tmac\tlin\twww\tunk\thits\tusers\n");
+	printf("day/hour\t\tnon\tios\tand\twm\twin\tmac\tlin\twww\tunk\t%10s%10s\n","hits","users");
 	itd = dstat.begin();
 	time_t dtime = (*itd).first * 86400;
 	for( ith = hstat.begin(); ith!= hstat.end(); ++ith) {
@@ -176,7 +188,7 @@ int main (int argc, char **argv) {
 				printf("%-24s", fmt);
 				print_stat( (*itd).second );
 				itd++;
-				printf("-------------------------------------------------------------------------------------------------------\n");
+				printf("--------------------------------------------------------------------------------------------------------------------\n");
 			}
 		}
 		time = Y2013 + (*ith).first * 3600;
@@ -194,7 +206,7 @@ int main (int argc, char **argv) {
 			strftime(fmt,1024,"%Y-%m-%d",tmp);
 			printf("%-24s", fmt);
 			print_stat( (*itd).second );
-			printf("-------------------------------------------------------------------------------------------------------\n");
+			printf("--------------------------------------------------------------------------------------------------------------------\n");
 		}
 	}
 	printf("%-24s", "total");
