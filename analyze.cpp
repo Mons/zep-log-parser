@@ -134,7 +134,7 @@ int main (int argc, char **argv) {
 				ua = AGENTS-1;
 			}
 			else if (unlikely( r->ua > AGENTS-2 )) {
-				printf("Bad agent: %d\n",r->ua);
+				//printf("Bad agent: %d\n",r->ua);
 				ua = AGENTS-1;
 			}
 			else {
