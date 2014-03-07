@@ -111,7 +111,11 @@ int main (int argc, char **argv) {
 		int fd = open(argv[i], O_RDONLY);
 		if (fd == -1) die("open %s failed: %s",argv[i],strerror(errno));
 		if (fstat(fd, &sb) == -1) die("fstat %s failed: %s",argv[i],strerror(errno));
-		fprintf(stdout,"%s, size: %0.2fM\n",argv[1],sb.st_size/1024/1024.0);
+		fprintf(stdout,"%s, size: %0.2fM\n",argv[i],sb.st_size/1024/1024.0);
+		if (sb.st_size == 0) {
+			close(fd);
+			continue;
+		}
 		if (istty) {
 			fprintf(stdout,"  0.00%%");
 		}
@@ -170,6 +174,8 @@ int main (int argc, char **argv) {
 			fprintf(stdout,"\r%6.2f%%\n",100.0);
 			fflush(stdout);
 		}
+		if(munmap(addr, sb.st_size) == -1) die ("munmap failed: %s", strerror(errno));
+		close(fd);
 		merge_cnt(dc,hc);
 	}
 	if (!dc->merged)
