@@ -46,18 +46,20 @@ typedef struct {
 #define AGENTS 9
 #define Y2013 1356984000
 
+typedef uint64_t counter;
+
 typedef struct cnt {
-	int hits;
-	int printed;
-	int merged;
-	std::map <int,int> users;
-	std::map <int,int> agent[AGENTS];
+	counter hits;
+	counter printed;
+	counter merged;
+	std::map <int,counter> users;
+	std::map <int,counter> agent[AGENTS];
 } cnt;
 
 static inline void merge_cnt(cnt *dst,cnt *src) {
 	int k;
 	std::map<int, cnt*>::iterator it;
-	std::map<int, int>::iterator ii;
+	std::map<int, counter>::iterator ii;
 	dst->hits += src->hits;
 	for( ii = src->users.begin(); ii!= src->users.end(); ++ii) {
 		dst->users[ (*ii).first ] += (*ii).second;
@@ -81,7 +83,7 @@ static inline void print_stat(cnt *c) {
 			printf("%zd\t",c->agent[i].size());
 		}
 	}
-	printf("%10d",c->hits);
+	printf("%10zd",c->hits);
 	printf("%10zd\t",c->users.size());
 	printf("\n");
 	c->printed = 1;
@@ -99,7 +101,7 @@ int main (int argc, char **argv) {
 	std::map<int, cnt*> hstat;
 	std::map<int, cnt*> dstat;
 	std::map<int, cnt*>::iterator itd,ith;
-	std::map<int, int>::iterator ii;
+	std::map<int, counter>::iterator ii;
 	
 	time_t time;
 	int ua, uid;
